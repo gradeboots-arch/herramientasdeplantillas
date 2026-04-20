@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Presentaciones Universitarias</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas para la descarga en JPG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- html2pdf.js para la descarga en PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- SortableJS para Drag and Drop fluido en móviles y escritorio -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- Iconos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        #preview-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: hidden;
+            background: #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem 0;
+            transition: background-color 0.3s;
+        }
+
+        .input-transition {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Transiciones suaves para los colores de los vectores SVG */
+        path, rect {
+            transition: fill 0.4s ease, stroke 0.4s ease;
+        }
+
+        /* Efecto al arrastrar un bloque */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #eff6ff; /* Azul clarito */
+        }
+        
+        .sortable-drag {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            cursor: grabbing !important;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm border-b border-gray-200 py-4 px-6 md:px-10 flex items-center justify-between z-10 relative">
+        <div class="flex items-center gap-3">
+            <i data-lucide="graduation-cap" class="text-blue-700 w-8 h-8" id="header-icon"></i>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900">Creador de Portadas</h1>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- FORMULARIO -->
+            <div class="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit lg:sticky lg:top-8 max-h-[85vh] overflow-y-auto">
+                <h2 class="text-lg font-semibold mb-1 text-gray-800">Datos del Trabajo</h2>
+                <p class="text-sm text-gray-500 mb-6">Personaliza, arrastra y ordena los bloques.</p>
+
+                <form id="data-form" class="space-y-4">
+                    
+                    <!-- SELECTOR DE UNIVERSIDAD -->
+                    <div class="pb-3 border-b border-gray-100">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">Universidad</label>
+                        <select id="select-uni" onchange="cambiarUniversidad()" class="input-transition w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 cursor-pointer">
+                            <option value="uniremhos">UNIREMHOS</option>
+                            <option value="uasd">UASD</option>
+                            <option value="uapa">UAPA</option>
+                            <option value="utesa">UTESA</option>
+                        </select>
+                    </div>
+
+                    <!-- TÍTULO PRINCIPAL (Fijo) -->
+                    <div class="pb-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Título Principal de Portada</label>
+                        <input type="text" id="input-titulo" value="Presentación" oninput="sincronizarVistaPrevia()" class="input-transition w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg">
+                    </div>
+
+                    <!-- CONTENEDOR DE BLOQUES ARRASTRABLES -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-medium text-gray-700">Campos de la Portada</label>
+                            <span class="text-xs text-gray-400">Arrastra para ordenar</span>
+                        </div>
+                        
+                        <div id="campos-container" class="space-y-3">
+                            <!-- Los bloques se inyectan aquí con Javascript -->
+                        </div>
+                    </div>
+
+                    <!-- BOTONES DE DESCARGA -->
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 pt-4 mt-4 border-t border-gray-100">
+                        <button type="button" onclick="descargarPDF()" id="btn-descargar" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                            <span>Descargar PDF</span>
+                        </button>
+                        <button type="button" onclick="descargarJPG()" id="btn-descargar-jpg" class="w-full flex items-center justify-center gap-2 bg-[#002060] hover:bg-blue-900 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md">
+                            <i data-lucide="image" class="w-5 h-5"></i>
+                            <span>Descargar JPG</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- VISTA PREVIA -->
+            <div class="w-full lg:w-2/3 flex flex-col">
+                <div class="mb-3 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800">Vista Previa</h2>
+                    <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">Tamaño Carta (8.5" x 11")</span>
+                </div>
+                
+                <div id="preview-wrapper">
+                    <div id="scale-wrapper" class="origin-top shadow-md">
+                        
+                        <!-- ========================================================================= -->
+                        <!-- INICIO PLANTILLA -->
+                        <!-- ========================================================================= -->
+                        <div id="hoja-render" style="width: 816px; height: 1056px; background-color: white; position: relative; overflow: hidden; font-family: 'Times New Roman', Times, serif; box-sizing: border-box; flex-shrink: 0;">
+                            
+                            <!-- FONDO SVG -->
+                            <svg width="816" height="1056" viewBox="0 0 816 1056" style="position: absolute; top: 0; left: 0; width: 816px; height: 1056px; z-index: 0; pointer-events: none; display: block;" xmlns="http://www.w3.org/2000/svg">
+                                <path id="svg-curva1-fill" d="M 0 0 L 400 0 C 180 150, 50 350, 0 600 Z" fill="#E61C24" />
+                                <path id="svg-curva1-stroke" d="M 0 0 L 470 0 C 220 180, 80 380, 0 670" fill="none" stroke="#E61C24" stroke-width="3" />
+                                
+                                <path id="svg-curva2-fill" d="M 816 1056 L 500 1056 C 700 950, 780 700, 816 450 Z" fill="#FFDE00" />
+                                <path id="svg-curva2-stroke" d="M 816 1056 L 430 1056 C 650 950, 740 670, 816 380" fill="none" stroke="#FFDE00" stroke-width="3" />
+
+                                <rect class="svg-cuadro" x="730" y="50" width="35" height="35" fill="#FFDE00" />
+                                <rect class="svg-cuadro" x="690" y="85" width="20" height="20" fill="#FFDE00" />
+                                <rect class="svg-cuadro" x="775" y="90" width="16" height="16" fill="#FFDE00" />
+                                <rect class="svg-cuadro" x="750" y="125" width="12" height="12" fill="#FFDE00" />
+                                <rect class="svg-cuadro" x="690" y="60" width="8" height="8" fill="#FFDE00" />
+                                <rect class="svg-cuadro" x="720" y="110" width="10" height="10" fill="#FFDE00" />
+                                <rect class="svg-cuadro" x="710" y="130" width="6" height="6" fill="#FFDE00" />
+                            </svg>
+
+                            <!-- LOGO INSTITUCIONAL -->
+                            <img id="logo-inst" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Logo Universidad" style="position: absolute; bottom: 64px; left: 64px; width: 140px; height: 140px; z-index: 20; object-fit: contain; object-position: bottom left;">
+
+                            <!-- Contenedor del Texto Dinámico -->
+                            <div style="position: absolute; top: 0; left: 0; width: 816px; height: 1056px; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; padding: 40px 0;">
+                                
+                                <h1 id="render-titulo" style="font-size: 44px; font-weight: bold; margin: 0 0 40px 0; letter-spacing: 1px; color: black;">Presentación</h1>
+
+                                <!-- Los bloques dinámicos se inyectan aquí -->
+                                <div id="render-campos-container" style="width: 500px; display: flex; flex-direction: column; gap: 24px; font-size: 22px; line-height: 1.2; color: black; text-align: center;">
+                                    <!-- Contenido inyectado por JS -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ========================================================================= -->
+                        <!-- FIN DE LA PLANTILLA HTML -->
+                        <!-- ========================================================================= -->
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. BASE DE DATOS DE UNIVERSIDADES
+        const universidades = {
+            uniremhos: {
+                logo: "https://uniremhos.edu.do/wp-content/uploads/2021/05/Logo-uniremhos2.png",
+                colorPrincipal: "#E61C24", 
+                colorSecundario: "#FFDE00", 
+                btnColor: "bg-red-600",
+                btnHover: "hover:bg-red-700"
+            },
+            uasd: {
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpX4MMZyqpdYo_eWJ_PFPb-zOrELL-9x2G7A&s",
+                colorPrincipal: "#005baa", 
+                colorSecundario: "#000000", 
+                btnColor: "bg-blue-600",
+                btnHover: "hover:bg-blue-700"
+            },
+            uapa: {
+                logo: "https://i.postimg.cc/DZFjR7KY/image.png",
+                colorPrincipal: "#003876", 
+                colorSecundario: "#ffb600", 
+                btnColor: "bg-blue-800",
+                btnHover: "hover:bg-blue-900"
+            },
+            utesa: {
+                logo: "https://www.utesa.edu/webutesa/IMAGES/LogoUtesaSC.gif",
+                colorPrincipal: "#006838", 
+                colorSecundario: "#F5C611", 
+                btnColor: "bg-green-700",
+                btnHover: "hover:bg-green-800"
+            }
+        };
+
+        // 2. ESTADO INICIAL DE LOS CAMPOS (Orden y Textos)
+        let camposData = [
+            { id: 'nombres', label: 'Nombres', value: 'Rocio Michelle' },
+            { id: 'apellidos', label: 'Apellidos', value: 'Contreras Báez' },
+            { id: 'matricula', label: 'Matrícula', value: 'DN-2026-06235' },
+            { id: 'tema', label: 'Tema', value: 'Las Reflexiones' },
+            { id: 'materia', label: 'Materia', value: 'Historia Dominicana' },
+            { id: 'facilitador', label: 'Facilitador', value: 'Licda. Amanda Ortiz' }
+        ];
+
+        // 3. RENDERIZAR LOS BLOQUES EN EL FORMULARIO
+        function renderFormulario() {
+            const container = document.getElementById('campos-container');
+            container.innerHTML = ''; // Limpiamos
+
+            camposData.forEach(campo => {
+                const block = document.createElement('div');
+                block.className = 'campo-block flex items-start gap-2 p-3 bg-white border border-gray-200 rounded-lg shadow-sm';
+                block.dataset.id = campo.id;
+                
+                block.innerHTML = `
+                    <div class="drag-handle mt-6 cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 bg-gray-50 rounded">
+                        <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                    </div>
+                    <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Subtítulo</label>
+                            <input type="text" class="campo-label w-full px-2 py-1.5 text-sm font-bold text-[#002060] bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" value="${campo.label}" placeholder="Ej. Tema">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Contenido</label>
+                            <input type="text" class="campo-value w-full px-2 py-1.5 text-sm text-gray-800 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none transition-all" value="${campo.value}" placeholder="Texto a mostrar">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(block);
+            });
+
+            // Agregamos listeners a los nuevos inputs para actualizar la hoja al escribir
+            document.querySelectorAll('.campo-label, .campo-value').forEach(input => {
+                input.addEventListener('input', sincronizarVistaPrevia);
+            });
+        }
+
+        // 4. SINCRONIZAR DATOS DE LA UI HACIA LA VISTA PREVIA
+        function sincronizarVistaPrevia() {
+            // Actualizar Título Principal
+            const titulo = document.getElementById('input-titulo').value.trim();
+            const renderTitulo = document.getElementById('render-titulo');
+            renderTitulo.textContent = titulo;
+            renderTitulo.style.display = titulo === '' ? 'none' : 'block';
+
+            // Reconstruir el array "camposData" leyendo el orden actual de los bloques HTML
+            const nuevosCampos = [];
+            document.querySelectorAll('.campo-block').forEach(block => {
+                nuevosCampos.push({
+                    id: block.dataset.id,
+                    label: block.querySelector('.campo-label').value.trim(),
+                    value: block.querySelector('.campo-value').value // Sin trim para permitir espacios intencionales
+                });
+            });
+            camposData = nuevosCampos;
+
+            // Renderizar en la hoja de vista previa
+            const renderContainer = document.getElementById('render-campos-container');
+            renderContainer.innerHTML = '';
+
+            camposData.forEach(campo => {
+                if (campo.value.trim() === '') return; // Si el contenido está vacío, no se imprime
+
+                const labelText = campo.label.endsWith(':') ? campo.label : campo.label + ':';
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <p style="font-weight: bold; color: black; margin: 0;">${labelText}</p>
+                    <p style="margin: 4px 0 0 0;">${campo.value}</p>
+                `;
+                renderContainer.appendChild(div);
+            });
+        }
+
+        // 5. INICIALIZAR LIBRERÍA DRAG AND DROP
+        function inicializarDragAndDrop() {
+            const container = document.getElementById('campos-container');
+            new Sortable(container, {
+                handle: '.drag-handle', // Solo se arrastra usando el ícono
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: function() {
+                    // Cuando sueltas el bloque en su nueva posición, se actualiza la vista
+                    sincronizarVistaPrevia();
+                }
+            });
+        }
+
+        // CAMBIAR UNIVERSIDAD (LOGO Y COLORES)
+        function cambiarUniversidad() {
+            const uniKey = document.getElementById('select-uni').value;
+            const uni = universidades[uniKey];
+
+            // Colores
+            document.getElementById('svg-curva1-fill').setAttribute('fill', uni.colorPrincipal);
+            document.getElementById('svg-curva1-stroke').setAttribute('stroke', uni.colorPrincipal);
+            document.getElementById('svg-curva2-fill').setAttribute('fill', uni.colorSecundario);
+            document.getElementById('svg-curva2-stroke').setAttribute('stroke', uni.colorSecundario);
+
+            document.querySelectorAll('.svg-cuadro').forEach(rect => {
+                rect.setAttribute('fill', uni.colorSecundario);
+            });
+
+            // Botón
+            const btnPdf = document.getElementById('btn-descargar');
+            btnPdf.className = `w-full flex items-center justify-center gap-2 ${uni.btnColor} ${uni.btnHover} text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md`;
+
+            cargarLogoSeguro(uni.logo);
+        }
+
+        // ZOOM RESPONSIVE
+        function escalarVistaPrevia() {
+            const wrapper = document.getElementById('preview-wrapper');
+            const scaleWrapper = document.getElementById('scale-wrapper');
+            const scale = Math.min((wrapper.clientWidth - 32) / 816, 1); 
+            scaleWrapper.style.transform = `scale(${scale})`;
+            wrapper.style.height = `${(1056 * scale) + 32}px`;
+        }
+        window.addEventListener('resize', escalarVistaPrevia);
+
+        // FUNCIÓN INFALIBLE PARA LOGO
+        function cargarLogoSeguro(urlLogo) {
+            const logoImg = document.getElementById('logo-inst');
+            logoImg.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            
+            const cleanUrl = urlLogo.replace(/^https?:\/\//, '');
+            const proxyUrl = 'https://wsrv.nl/?url=' + encodeURIComponent(cleanUrl) + '&output=png';
+            
+            const tempImg = new Image();
+            tempImg.crossOrigin = 'anonymous'; 
+            
+            tempImg.onload = function() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = tempImg.naturalWidth || 800;
+                    canvas.height = tempImg.naturalHeight || 800;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(tempImg, 0, 0);
+                    logoImg.src = canvas.toDataURL('image/png');
+                } catch (e) {
+                    logoImg.src = proxyUrl; 
+                }
+            };
+            
+            tempImg.onerror = function() {
+                logoImg.src = urlLogo;
+            };
+            
+            tempImg.src = proxyUrl;
+        }
+
+        // AL CARGAR LA PÁGINA
+        window.addEventListener('DOMContentLoaded', () => {
+            renderFormulario();       // Creamos los bloques iniciales
+            inicializarDragAndDrop(); // Activamos el arrastre
+            cambiarUniversidad();     // Cargamos la Uni por defecto
+            sincronizarVistaPrevia(); // Pintamos la vista previa
+            escalarVistaPrevia();
+            setTimeout(escalarVistaPrevia, 200); 
+        });
+
+        // ==========================================
+        // FUNCIONES DE DESCARGA (Entornos Aislados)
+        // ==========================================
+
+        function crearEntornoAislado() {
+            const hoja = document.getElementById('hoja-render');
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed'; 
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.width = '816px';    
+            iframe.style.height = '1056px';
+            iframe.style.zIndex = '-9999';   
+            iframe.style.opacity = '0';
+            iframe.style.border = 'none';
+            iframe.style.pointerEvents = 'none';
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
+                        * { box-sizing: border-box; }
+                    </style>
+                </head>
+                <body>
+                    ${hoja.outerHTML}
+                </body>
+                </html>
+            `);
+            doc.close();
+            return iframe;
+        }
+
+        function descargarPDF() {
+            const btn = document.getElementById('btn-descargar');
+            const btnOriginalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generando PDF...';
+            lucide.createIcons();
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+
+            const iframe = crearEntornoAislado();
+            const nombreUni = document.getElementById('select-uni').options[document.getElementById('select-uni').selectedIndex].text;
+
+            setTimeout(() => {
+                const elementoAImprimir = iframe.contentWindow.document.getElementById('hoja-render');
+                const opciones = {
+                    margin:       0,
+                    filename:     `Presentacion-${nombreUni}.pdf`,
+                    image:        { type: 'jpeg', quality: 1 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: 816, windowHeight: 1056, x: 0, y: 0, scrollX: 0, scrollY: 0 },
+                    jsPDF:        { unit: 'px', format: [816, 1056], orientation: 'portrait' }
+                };
+
+                html2pdf().set(opciones).from(elementoAImprimir).save().then(() => {
+                    document.body.removeChild(iframe); 
+                    btn.innerHTML = btnOriginalText;
+                    lucide.createIcons();
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                }).catch(err => {
+                    alert("Hubo un error al generar el PDF.");
+                    document.body.removeChild(iframe);
+                    btn.innerHTML = btnOriginalText;
+                    lucide.createIcons();
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                });
+            }, 800);
+        }
+
+        function descargarJPG() {
+            const btn = document.getElementById('btn-descargar-jpg');
+            const btnOriginalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generando JPG...';
+            lucide.createIcons();
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+
+            const iframe = crearEntornoAislado();
+            const nombreUni = document.getElementById('select-uni').options[document.getElementById('select-uni').selectedIndex].text;
+
+            setTimeout(() => {
+                const elementoAImprimir = iframe.contentWindow.document.getElementById('hoja-render');
+                
+                html2canvas(elementoAImprimir, { 
+                    scale: 2, useCORS: true, logging: false, windowWidth: 816, windowHeight: 1056, x: 0, y: 0, scrollX: 0, scrollY: 0
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const link = document.createElement('a');
+                    link.download = `Presentacion-${nombreUni}.jpg`;
+                    link.href = imgData;
+                    link.click();
+
+                    document.body.removeChild(iframe); 
+                    btn.innerHTML = btnOriginalText;
+                    lucide.createIcons();
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                }).catch(err => {
+                    alert("Hubo un error al generar el JPG.");
+                    document.body.removeChild(iframe);
+                    btn.innerHTML = btnOriginalText;
+                    lucide.createIcons();
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                });
+            }, 800);
+        }
+    </script>
+</body>
+</html>
