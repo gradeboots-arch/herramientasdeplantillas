@@ -73,14 +73,23 @@
 
                 <form id="data-form" class="space-y-4">
                     
-                    <!-- SELECTOR DE UNIVERSIDAD -->
+                    <!-- PILIEN TI UNIBERSIDAD -->
                     <div class="pb-3 border-b border-gray-100">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">Universidad</label>
+                        <label class="block text-sm font-bold text-gray-800 mb-1">Unibersidad</label>
                         <select id="select-uni" onchange="cambiarUniversidad()" class="input-transition w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 cursor-pointer">
                             <option value="uniremhos">UNIREMHOS</option>
                             <option value="uasd">UASD</option>
                             <option value="uapa">UAPA</option>
                             <option value="utesa">UTESA</option>
+                            <option value="pucmm">PUCMM</option>
+                            <option value="intec">INTEC</option>
+                            <option value="unibe">UNIBE</option>
+                            <option value="unphu">UNPHU</option>
+                            <option value="unapec">UNAPEC</option>
+                            <option value="unicaribe">UNICARIBE</option>
+                            <option value="ucateci">UCATECI</option>
+                            <option value="itla">ITLA</option>
+                            <option value="itsc">ITSC</option>
                         </select>
                     </div>
 
@@ -100,6 +109,12 @@
                         <div id="campos-container" class="space-y-3">
                             <!-- Los bloques se inyectan aquí con Javascript -->
                         </div>
+                        
+                        <!-- NUEVO BOTÓN PARA AGREGAR CAMPOS -->
+                        <button type="button" onclick="agregarCampo()" class="mt-3 w-full py-2.5 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors flex justify-center items-center gap-2 font-medium text-sm bg-gray-50 hover:bg-blue-50">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Agregar nuevo campo
+                        </button>
                     </div>
 
                     <!-- BOTONES DE DESCARGA -->
@@ -176,11 +191,11 @@
     <script>
         lucide.createIcons();
 
-        // 1. BASE DE DATOS DE UNIVERSIDADES
+        // 1. BASE DE DATOS DAGITI UNIBERSIDAD
         const universidades = {
             uniremhos: {
                 logo: "https://uniremhos.edu.do/wp-content/uploads/2021/05/Logo-uniremhos2.png",
-                colorPrincipal: "#E61C24", 
+                colorPrincipal: "#00008F", 
                 colorSecundario: "#FFDE00", 
                 btnColor: "bg-red-600",
                 btnHover: "hover:bg-red-700"
@@ -193,7 +208,7 @@
                 btnHover: "hover:bg-blue-700"
             },
             uapa: {
-                logo: "https://i.postimg.cc/DZFjR7KY/image.png",
+                logo: "https://scontent-mia3-3.xx.fbcdn.net/v/t39.30808-6/674362324_122206502144431982_6959855271145018058_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=13d280&_nc_ohc=MmNbqUL5yvcQ7kNvwFa1_PF&_nc_oc=AdpULb1M_rDJzPkZMkFBPWrzJ9YjXcbtYP_jtg99Qo2Hc-xPBndXHIakOT4i21Yrh9M&_nc_zt=23&_nc_ht=scontent-mia3-3.xx&_nc_gid=173AN59efHvi_lzHoLnJ6g&_nc_ss=7a3a8&oh=00_Af1jd1SzvaLJkVDnemIQ6Z6JWZ-ld8ddhgTc9mYqqDuSew&oe=69EB6288",
                 colorPrincipal: "#003876", 
                 colorSecundario: "#ffb600", 
                 btnColor: "bg-blue-800",
@@ -205,10 +220,73 @@
                 colorSecundario: "#F5C611", 
                 btnColor: "bg-green-700",
                 btnHover: "hover:bg-green-800"
+            },
+            pucmm: {
+                logo: "https://www.pucmm.edu.do/recursos/PublishingImages/Paginas/logos/Logo%20PUCMM%20(Color).png",
+                colorPrincipal: "#BEBAB9", // Azul
+                colorSecundario: "#e31837", // Rojo
+                btnColor: "bg-blue-900",
+                btnHover: "hover:bg-blue-950"
+            },
+            intec: {
+                logo: "https://upload.wikimedia.org/wikipedia/commons/5/57/Instituto_Tecnol%C3%B3gico_de_Santo_Domingo_INTEC_LOGO.png",
+                colorPrincipal: "#c8102e", // Rojo
+                colorSecundario: "#333333", // Gris Oscuro
+                btnColor: "bg-red-700",
+                btnHover: "hover:bg-red-800"
+            },
+            unibe: {
+                logo: "https://www.unibe.edu.do/wp-content/uploads/2023/02/logo-unibe-blue-nuevo.png",
+                colorPrincipal: "#0072ce", // Azul Claro
+                colorSecundario: "#00A1E2", // Naranja
+                btnColor: "bg-blue-500",
+                btnHover: "hover:bg-blue-600"
+            },
+            unphu: {
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEg4rsdnKQrQdj3g8bEJ0B7Qc5JjHeyJxXhQ&s",
+                colorPrincipal: "#006747", // Verde
+                colorSecundario: "#203E74", // Amarillo
+                btnColor: "bg-green-700",
+                btnHover: "hover:bg-green-800"
+            },
+            unapec: {
+                logo: "https://unapec.edu.do/media/10856/simbolo-color.png",
+                colorPrincipal: "#005AAB", // Azul Real
+                colorSecundario: "#C79737", // Cian
+                btnColor: "bg-blue-800",
+                btnHover: "hover:bg-blue-900"
+            },
+            unicaribe: {
+                logo: "https://unicaribe.edu.do/wp-content/uploads/elementor/thumbs/UNICARIBE1-6-e1739378068311-r1em02rgtrpt4xidth5gtpd50v4ot56wywytdodwru.png",
+                colorPrincipal: "#148D45", // Azul Marino
+                colorSecundario: "#C01423", // Rojo
+                btnColor: "bg-blue-900",
+                btnHover: "hover:bg-red-700"
+            },
+            ucateci: {
+                logo: "https://www.ucateci.edu.do/images/archivos/logo/Logo-UCATECI-2.png",
+                colorPrincipal: "#275598", // Carmesí
+                colorSecundario: "#CBC8C7", // Amarillo
+                btnColor: "bg-red-800",
+                btnHover: "hover:bg-red-900"
+            },
+            itla: {
+                logo: "https://educapermanente.itla.edu.do/pluginfile.php/1/core_admin/logo/0x200/1773843777/ITLA-logo-fondo-blanco%20%281%29.png",
+                colorPrincipal: "#003da5", // Rojo
+                colorSecundario: "#c8102e", // Azul
+                btnColor: "bg-red-700",
+                btnHover: "hover:bg-blue-800"
+            },
+            itsc: {
+                logo: "https://gravatar.com/avatar/28b9da305a3a5e75b9f4288a672fda8a?s=270&d=identicon",
+                colorPrincipal: "#BF2025", // Azul
+                colorSecundario: "#303D48", // Naranja
+                btnColor: "bg-blue-700",
+                btnHover: "hover:bg-blue-800"
             }
         };
 
-        // 2. ESTADO INICIAL DE LOS CAMPOS (Orden y Textos)
+        // 2. ESTADO INICIAL DAGITI PASET (Urnos ken Teksto)
         let camposData = [
             { id: 'nombres', label: 'Nombres', value: 'Rocio Michelle' },
             { id: 'apellidos', label: 'Apellidos', value: 'Contreras Báez' },
@@ -229,7 +307,7 @@
                 block.dataset.id = campo.id;
                 
                 block.innerHTML = `
-                    <div class="drag-handle mt-6 cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 bg-gray-50 rounded">
+                    <div class="drag-handle mt-5 cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 bg-gray-50 rounded" title="Mover">
                         <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
                     </div>
                     <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -242,6 +320,11 @@
                             <input type="text" class="campo-value w-full px-2 py-1.5 text-sm text-gray-800 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none transition-all" value="${campo.value}" placeholder="Texto a mostrar">
                         </div>
                     </div>
+                    <div class="mt-5">
+                        <button type="button" onclick="eliminarCampo('${campo.id}')" class="text-gray-400 hover:text-red-500 p-1 bg-gray-50 rounded transition-colors" title="Eliminar campo">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 `;
                 container.appendChild(block);
             });
@@ -250,6 +333,26 @@
             document.querySelectorAll('.campo-label, .campo-value').forEach(input => {
                 input.addEventListener('input', sincronizarVistaPrevia);
             });
+            
+            // Re-renderizar iconos de Lucide
+            lucide.createIcons();
+        }
+
+        // AGREGAR NUEVO CAMPO
+        function agregarCampo() {
+            sincronizarVistaPrevia(); // Guardar lo que el usuario haya escrito
+            const newId = 'campo-' + Date.now();
+            camposData.push({ id: newId, label: 'Nuevo Campo', value: '' });
+            renderFormulario();
+            sincronizarVistaPrevia();
+        }
+
+        // ELIMINAR CAMPO
+        function eliminarCampo(id) {
+            sincronizarVistaPrevia(); // Guardar lo que el usuario haya escrito
+            camposData = camposData.filter(campo => campo.id !== id);
+            renderFormulario();
+            sincronizarVistaPrevia();
         }
 
         // 4. SINCRONIZAR DATOS DE LA UI HACIA LA VISTA PREVIA
