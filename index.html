@@ -598,7 +598,7 @@
             setTimeout(() => { chatWindow.style.display = 'none'; btnToggleChat.classList.remove('hidden'); }, 300);
         });
 
-        // Imágenes
+        // Imágenes con Reducción Automática de Peso
         btnAttach.addEventListener('click', () => fileInput.click());
         
         fileInput.addEventListener('change', (e) => {
@@ -612,7 +612,7 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const MAX_SIZE = 800; // Resolución máxima
+                    const MAX_SIZE = 800; // Resolución máxima permitida para la IA
                     
                     if (width > height && width > MAX_SIZE) {
                         height *= MAX_SIZE / width;
@@ -689,7 +689,7 @@
             btnMic.style.display = 'none'; 
         }
 
-        // Enviar a la IA
+        // Enviar a la IA (Integración OpenAI GPT-4o-mini)
         function addMessageToUI(text, isUser = false, autoScroll = true) {
             const div = document.createElement('div');
             div.className = `px-4 py-2 text-sm shadow-sm max-w-[85%] border border-gray-100 ${isUser ? 'chat-mensaje-usuario' : 'chat-mensaje-bot'}`;
@@ -744,12 +744,15 @@ REGLAS ESTRICTAS:
 5. Puedes agregar, borrar o editar los campos según lo pida el usuario.`;
 
             const messages = [
-                { role: "system", content: systemPrompt },
-                // Añadir el historial previo (Limitado para no exceder los tokens)
-                ...chatHistory.map(msg => ({ role: msg.role, content: msg.content }))
+                { role: "system", content: systemPrompt }
             ];
 
-            // Añadir el mensaje actual del usuario
+            // Añadir el historial limitado
+            const historialLimitado = chatHistory.slice(-10);
+            historialLimitado.forEach(msg => {
+                messages.push({ role: msg.role, content: msg.content });
+            });
+
             const userContent = [];
             userContent.push({
                 type: "text",
@@ -770,6 +773,7 @@ REGLAS ESTRICTAS:
             const payload = {
                 model: "gpt-4o-mini",
                 messages: messages,
+                max_tokens: 1500,
                 response_format: { type: "json_object" }
             };
 
@@ -783,7 +787,11 @@ REGLAS ESTRICTAS:
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) {
+                    const errData = await response.json();
+                    console.error("Error de OpenAI:", errData);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
                 const data = await response.json();
                 const jsonStr = data.choices[0].message.content;
@@ -795,6 +803,7 @@ REGLAS ESTRICTAS:
                 
                 // Limitar a las últimas 40 entradas (20 interacciones)
                 if (chatHistory.length > 40) chatHistory = chatHistory.slice(-40);
+                guardarEstado();
 
                 document.getElementById('select-uni').value = result.universidad || 'uniremhos';
                 document.getElementById('select-plantilla').value = result.plantilla || 'clasica';
@@ -811,7 +820,11 @@ REGLAS ESTRICTAS:
 
             } catch (error) {
                 console.error(error);
-                addMessageToUI("Hubo un error de conexión con la IA. Es posible que la imagen sea muy pesada o haya un fallo en la red.");
+                if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    addMessageToUI("⚠️ Error de entorno: La vista previa de esta plataforma bloquea las conexiones a OpenAI por seguridad. El código es 100% correcto, para probarlo debes copiarlo, guardarlo como un archivo .html en tu computadora y abrirlo en tu navegador normal.");
+                } else {
+                    addMessageToUI("Hubo un error de conexión con la IA. Verifica tu API Key o la conexión a internet.");
+                }
             } finally {
                 chatTyping.classList.add('hidden');
                 btnSendChat.disabled = false;
