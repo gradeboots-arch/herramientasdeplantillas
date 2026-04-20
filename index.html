@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Presentaciones Universitarias</title>
+    <title>El Asistente Digital - Creador de Portadas</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2canvas para la descarga en JPG -->
+    <!-- html2canvas y html2pdf para descargas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- html2pdf.js para la descarga en PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- SortableJS para Drag and Drop fluido en móviles y escritorio -->
+    <!-- SortableJS para Drag and Drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <!-- Iconos -->
+    <!-- Iconos Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -37,24 +36,26 @@
             transition: all 0.2s ease-in-out;
         }
 
-        /* Efecto al arrastrar un bloque */
-        .sortable-ghost {
-            opacity: 0.4;
-            background-color: #eff6ff;
-        }
+        .sortable-ghost { opacity: 0.4; background-color: #e0f2f7; }
+        .sortable-drag { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: grabbing !important; }
+
+        /* Estilos del Chatbot tematizados */
+        .chat-mensaje-usuario { background-color: #e0f2f7; color: #214b6b; border-radius: 12px 12px 0 12px; align-self: flex-end; }
+        .chat-mensaje-bot { background-color: #f3f4f6; color: #1f2937; border-radius: 12px 12px 12px 0; align-self: flex-start; }
         
-        .sortable-drag {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            cursor: grabbing !important;
-        }
+        /* Animación "Escribiendo" */
+        .typing-dot { animation: typing 1.4s infinite ease-in-out; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
 
     <header class="bg-white shadow-sm border-b border-gray-200 py-4 px-6 md:px-10 flex items-center justify-between z-10 relative">
         <div class="flex items-center gap-3">
-            <i data-lucide="graduation-cap" class="text-blue-700 w-8 h-8" id="header-icon"></i>
-            <h1 class="text-xl md:text-2xl font-bold text-gray-900">Creador de Portadas</h1>
+            <img src="https://scontent-mia3-1.xx.fbcdn.net/v/t39.30808-1/644803739_122106958473250405_6225607662221025125_n.jpg?stp=cp6_dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=cS0ltmPzlLcQ7kNvwHasIxC&_nc_oc=AdrktDnCnxN0yum6vzop2O8tHEUq31wOy93Jce5zRwuTPzz728bKnTGKF1Jz03GKonw&_nc_zt=24&_nc_ht=scontent-mia3-1.xx&_nc_gid=16ZiCQc1A0fNyd1hE_rVUA&_nc_ss=7a3a8&oh=00_Af3jGrhrtpYeaBZgTRMVJQnE2IPUrrAfs6LgnkxDUkg1JA&oe=69EC2D57" alt="El Asistente Digital Logo" class="w-11 h-11 rounded-full object-cover border-2 border-[#5da4bc] shadow-sm">
+            <h1 class="text-xl md:text-2xl font-extrabold text-[#214b6b] tracking-tight">El Asistente Digital</h1>
         </div>
     </header>
 
@@ -63,16 +64,15 @@
             
             <!-- FORMULARIO -->
             <div class="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit lg:sticky lg:top-8 max-h-[85vh] overflow-y-auto">
-                <h2 class="text-lg font-semibold mb-1 text-gray-800">Datos del Trabajo</h2>
-                <p class="text-sm text-gray-500 mb-6">Personaliza tu diseño, arrastra y ordena los bloques.</p>
+                <h2 class="text-lg font-semibold mb-1 text-[#214b6b]">Datos del Trabajo</h2>
+                <p class="text-sm text-gray-500 mb-6">Personaliza tu diseño, arrastra los bloques o <b>pídeselo a la IA</b>.</p>
 
                 <form id="data-form" class="space-y-4">
-                    
                     <!-- CONFIGURACIÓN DE DISEÑO -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-100">
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-1">Universidad</label>
-                            <select id="select-uni" onchange="actualizarDiseno()" class="input-transition w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 cursor-pointer">
+                            <select id="select-uni" onchange="actualizarDiseno()" class="input-transition w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5da4bc] outline-none font-medium text-gray-700 cursor-pointer">
                                 <option value="uniremhos">UNIREMHOS</option>
                                 <option value="uasd">UASD</option>
                                 <option value="uapa">UAPA</option>
@@ -90,7 +90,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-1">Plantilla</label>
-                            <select id="select-plantilla" onchange="actualizarDiseno()" class="input-transition w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 cursor-pointer">
+                            <select id="select-plantilla" onchange="actualizarDiseno()" class="input-transition w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5da4bc] outline-none font-medium text-gray-700 cursor-pointer">
                                 <option value="clasica">1. Clásica (Curvas)</option>
                                 <option value="lateral">2. Lateral Moderno</option>
                                 <option value="superior">3. Banda Superior</option>
@@ -100,10 +100,10 @@
                         </div>
                     </div>
 
-                    <!-- TÍTULO PRINCIPAL (Fijo) -->
+                    <!-- TÍTULO PRINCIPAL -->
                     <div class="pb-2 mt-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Título Principal de Portada</label>
-                        <input type="text" id="input-titulo" value="Presentación" oninput="sincronizarVistaPrevia()" class="input-transition w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg">
+                        <input type="text" id="input-titulo" value="Presentación" placeholder="Ej. Trabajo de Investigación" oninput="sincronizarVistaPrevia()" class="input-transition w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5da4bc] outline-none font-bold text-lg">
                     </div>
 
                     <!-- CONTENEDOR DE BLOQUES ARRASTRABLES -->
@@ -112,27 +112,19 @@
                             <label class="block text-sm font-medium text-gray-700">Campos de la Portada</label>
                             <span class="text-xs text-gray-400">Arrastra para ordenar</span>
                         </div>
-                        
-                        <div id="campos-container" class="space-y-3">
-                            <!-- Los bloques se inyectan aquí con Javascript -->
-                        </div>
-                        
-                        <!-- BOTÓN PARA AGREGAR CAMPOS -->
-                        <button type="button" onclick="agregarCampo()" class="mt-3 w-full py-2.5 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors flex justify-center items-center gap-2 font-medium text-sm bg-gray-50 hover:bg-blue-50">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            Agregar nuevo campo
+                        <div id="campos-container" class="space-y-3"></div>
+                        <button type="button" onclick="agregarCampo()" class="mt-3 w-full py-2.5 border-2 border-dashed border-[#5da4bc] text-[#214b6b] rounded-lg hover:bg-[#e0f2f7] transition-colors flex justify-center items-center gap-2 font-bold text-sm bg-gray-50">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Agregar nuevo campo
                         </button>
                     </div>
 
                     <!-- BOTONES DE DESCARGA -->
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 pt-4 mt-4 border-t border-gray-100">
-                        <button type="button" onclick="descargarPDF()" id="btn-descargar" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md">
-                            <i data-lucide="download" class="w-5 h-5"></i>
-                            <span>Descargar PDF</span>
+                        <button type="button" onclick="descargarPDF()" id="btn-descargar" class="w-full flex items-center justify-center gap-2 bg-[#5da4bc] hover:bg-[#48879e] text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md">
+                            <i data-lucide="download" class="w-5 h-5"></i><span>Descargar PDF</span>
                         </button>
-                        <button type="button" onclick="descargarJPG()" id="btn-descargar-jpg" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md">
-                            <i data-lucide="image" class="w-5 h-5"></i>
-                            <span>Descargar JPG</span>
+                        <button type="button" onclick="descargarJPG()" id="btn-descargar-jpg" class="w-full flex items-center justify-center gap-2 bg-[#214b6b] hover:bg-[#16364f] text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md">
+                            <i data-lucide="image" class="w-5 h-5"></i><span>Descargar JPG</span>
                         </button>
                     </div>
                 </form>
@@ -141,21 +133,14 @@
             <!-- VISTA PREVIA -->
             <div class="w-full lg:w-2/3 flex flex-col">
                 <div class="mb-3 flex justify-between items-center">
-                    <h2 class="text-lg font-semibold text-gray-800">Vista Previa</h2>
-                    <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">Tamaño Carta (8.5" x 11")</span>
+                    <h2 class="text-lg font-semibold text-[#214b6b]">Vista Previa</h2>
+                    <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded font-medium">Tamaño Carta (8.5" x 11")</span>
                 </div>
-                
                 <div id="preview-wrapper">
-                    <div id="scale-wrapper" class="origin-top shadow-md">
-                        
-                        <!-- ========================================================================= -->
-                        <!-- EL CONTENIDO SE INYECTA DINÁMICAMENTE SEGÚN LA PLANTILLA -->
-                        <!-- ========================================================================= -->
+                    <div id="scale-wrapper" class="origin-top shadow-lg">
                         <div id="hoja-render" style="width: 816px; height: 1056px; background-color: white; position: relative; overflow: hidden; font-family: 'Times New Roman', Times, serif; box-sizing: border-box; flex-shrink: 0;">
                             <!-- Inyectado por JS -->
                         </div>
-                        <!-- ========================================================================= -->
-
                     </div>
                 </div>
             </div>
@@ -163,28 +148,106 @@
         </div>
     </main>
 
-    <script>
-        lucide.createIcons();
+    <!-- ========================================================= -->
+    <!-- INTERFAZ DEL CHATBOT FLOTANTE                             -->
+    <!-- ========================================================= -->
+    
+    <!-- Botón Flotante -->
+    <button id="btn-toggle-chat" class="fixed bottom-6 right-6 p-4 bg-[#214b6b] text-white rounded-full shadow-2xl z-50 hover:bg-[#16364f] transition-transform hover:scale-110 flex items-center justify-center focus:outline-none">
+        <i data-lucide="bot" class="w-7 h-7"></i>
+        <!-- Indicador de notificación -->
+        <span class="absolute top-0 right-0 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5da4bc] opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-[#5da4bc] border-2 border-white"></span>
+        </span>
+    </button>
 
-        // 1. BASE DE DATOS DE UNIVERSIDADES
+    <!-- Ventana del Chatbot -->
+    <div id="chat-window" class="fixed bottom-24 right-6 w-[350px] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-2xl z-50 flex-col border border-gray-200 overflow-hidden transform scale-0 opacity-0 transition-all duration-300 origin-bottom-right" style="display: none;">
+        
+        <!-- Header Chat -->
+        <div class="bg-[#214b6b] text-white px-4 py-3 flex justify-between items-center shadow-md z-10 relative">
+            <div class="flex items-center gap-3">
+                <div class="p-1.5 bg-white/10 rounded-lg border border-white/20"><i data-lucide="sparkles" class="w-5 h-5 text-[#5da4bc]"></i></div>
+                <div>
+                    <h3 class="font-bold text-sm tracking-wide">El Asistente Digital</h3>
+                    <p class="text-[11px] text-blue-100 leading-tight">Sube una foto o pide ayuda</p>
+                </div>
+            </div>
+            <button id="btn-close-chat" class="text-white hover:text-[#5da4bc] transition-colors focus:outline-none"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Historial de Mensajes -->
+        <div id="chat-messages" class="flex-grow p-4 overflow-y-auto flex flex-col gap-3 bg-gray-50/50">
+            <!-- Mensaje Inicial -->
+            <div class="chat-mensaje-bot px-4 py-2 text-sm shadow-sm max-w-[85%] border border-gray-100">
+                ¡Hola! Soy tu Asistente Digital. Puedo organizar tus campos, cambiar el diseño o leer fotos de tu cuaderno para llenar los datos. ¿En qué te ayudo hoy?
+            </div>
+        </div>
+
+        <!-- Indicador Escribiendo (Oculto) -->
+        <div id="chat-typing" class="px-4 py-2 mb-2 hidden">
+            <div class="chat-mensaje-bot px-4 py-2 text-sm shadow-sm max-w-[85%] border border-gray-100 flex items-center gap-1 w-fit">
+                <div class="w-2 h-2 bg-[#5da4bc] rounded-full typing-dot"></div>
+                <div class="w-2 h-2 bg-[#5da4bc] rounded-full typing-dot"></div>
+                <div class="w-2 h-2 bg-[#5da4bc] rounded-full typing-dot"></div>
+            </div>
+        </div>
+
+        <!-- Preview de Imagen Adjunta -->
+        <div id="chat-image-preview-container" class="hidden px-3 pt-2 bg-white border-t border-gray-100 relative">
+            <div class="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shadow-sm group">
+                <img id="chat-image-preview" src="" class="w-full h-full object-cover">
+                <button id="btn-remove-image" class="absolute inset-0 bg-black/50 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="trash" class="text-white w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Área de Input -->
+        <div class="p-3 bg-white border-t border-gray-200">
+            <div class="flex items-end gap-2 bg-gray-100 rounded-xl p-1.5 border border-gray-200 focus-within:border-[#5da4bc] focus-within:ring-2 focus-within:ring-[#e0f2f7] transition-all">
+                
+                <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+                <button id="btn-attach" class="p-2 text-gray-500 hover:text-[#214b6b] rounded-lg hover:bg-white transition-colors" title="Adjuntar Imagen">
+                    <i data-lucide="paperclip" class="w-5 h-5"></i>
+                </button>
+
+                <textarea id="chat-input" rows="1" placeholder="Escribe tu petición aquí..." class="w-full bg-transparent text-sm text-gray-800 outline-none resize-none py-2 px-1 max-h-32 overflow-y-auto" style="min-height: 40px;"></textarea>
+                
+                <button id="btn-mic" class="p-2 text-gray-500 hover:text-red-500 rounded-lg hover:bg-white transition-colors" title="Nota de Voz">
+                    <i data-lucide="mic" class="w-5 h-5" id="mic-icon"></i>
+                </button>
+
+                <button id="btn-send-chat" class="p-2 text-white bg-[#214b6b] rounded-lg hover:bg-[#16364f] transition-colors shadow-sm disabled:opacity-50" title="Enviar">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="mic-status" class="text-[10px] text-red-500 text-center mt-1 hidden font-medium animate-pulse">Escuchando... Habla ahora</div>
+        </div>
+    </div>
+
+
+    <script>
+        // ==========================================
+        // 1. DATOS DE PLANTILLAS Y UNIVERSIDADES
+        // ==========================================
         const universidades = {
-            uniremhos: { logo: "https://uniremhos.edu.do/wp-content/uploads/2021/05/Logo-uniremhos2.png", colorPrincipal: "#c8102e", colorSecundario: "#FFDE00", btnColor: "bg-red-600", btnHover: "hover:bg-red-700" },
-            uasd: { logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpX4MMZyqpdYo_eWJ_PFPb-zOrELL-9x2G7A&s", colorPrincipal: "#010379", colorSecundario: "#000000", btnColor: "bg-blue-600", btnHover: "hover:bg-blue-700" },
-            uapa: { logo: "https://scontent-mia3-3.xx.fbcdn.net/v/t39.30808-6/674362324_122206502144431982_6959855271145018058_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=13d280&_nc_ohc=MmNbqUL5yvcQ7kNvwFa1_PF&_nc_oc=AdpULb1M_rDJzPkZMkFBPWrzJ9YjXcbtYP_jtg99Qo2Hc-xPBndXHIakOT4i21Yrh9M&_nc_zt=23&_nc_ht=scontent-mia3-3.xx&_nc_gid=173AN59efHvi_lzHoLnJ6g&_nc_ss=7a3a8&oh=00_Af1jd1SzvaLJkVDnemIQ6Z6JWZ-ld8ddhgTc9mYqqDuSew&oe=69EB6288", colorPrincipal: "#003876", colorSecundario: "#FC8101", btnColor: "bg-blue-800", btnHover: "hover:bg-blue-900" },
-            utesa: { logo: "https://www.utesa.edu/webutesa/IMAGES/LogoUtesaSC.gif", colorPrincipal: "#006838", colorSecundario: "#F5C611", btnColor: "bg-green-700", btnHover: "hover:bg-green-800" },
-            pucmm: { logo: "https://www.pucmm.edu.do/recursos/PublishingImages/Paginas/logos/Logo%20PUCMM%20(Color).png", colorPrincipal: "#BEBAB9", colorSecundario: "#e31837", btnColor: "bg-blue-900", btnHover: "hover:bg-blue-950" },
-            intec: { logo: "https://upload.wikimedia.org/wikipedia/commons/5/57/Instituto_Tecnol%C3%B3gico_de_Santo_Domingo_INTEC_LOGO.png", colorPrincipal: "#c8102e", colorSecundario: "#333333", btnColor: "bg-red-700", btnHover: "hover:bg-red-800" },
-            unibe: { logo: "https://www.unibe.edu.do/wp-content/uploads/2023/02/logo-unibe-blue-nuevo.png", colorPrincipal: "#0072ce", colorSecundario: "#00A1E2", btnColor: "bg-blue-500", btnHover: "hover:bg-blue-600" },
-            unphu: { logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEg4rsdnKQrQdj3g8bEJ0B7Qc5JjHeyJxXhQ&s", colorPrincipal: "#006747", colorSecundario: "#203E74", btnColor: "bg-green-700", btnHover: "hover:bg-green-800" },
-            unapec: { logo: "https://unapec.edu.do/media/10856/simbolo-color.png", colorPrincipal: "#005AAB", colorSecundario: "#C79737", btnColor: "bg-blue-800", btnHover: "hover:bg-blue-900" },
-            unicaribe: { logo: "https://unicaribe.edu.do/wp-content/uploads/elementor/thumbs/UNICARIBE1-6-e1739378068311-r1em02rgtrpt4xidth5gtpd50v4ot56wywytdodwru.png", colorPrincipal: "#148D45", colorSecundario: "#C01423", btnColor: "bg-blue-900", btnHover: "hover:bg-red-700" },
-            ucateci: { logo: "https://www.ucateci.edu.do/images/archivos/logo/Logo-UCATECI-2.png", colorPrincipal: "#275598", colorSecundario: "#CBC8C7", btnColor: "bg-red-800", btnHover: "hover:bg-red-900" },
-            itla: { logo: "https://educapermanente.itla.edu.do/pluginfile.php/1/core_admin/logo/0x200/1773843777/ITLA-logo-fondo-blanco%20%281%29.png", colorPrincipal: "#003da5", colorSecundario: "#c8102e", btnColor: "bg-red-700", btnHover: "hover:bg-blue-800" },
-            itsc: { logo: "https://gravatar.com/avatar/28b9da305a3a5e75b9f4288a672fda8a?s=270&d=identicon", colorPrincipal: "#BF2025", colorSecundario: "#303D48", btnColor: "bg-blue-700", btnHover: "hover:bg-blue-800" }
+            uniremhos: { logo: "https://uniremhos.edu.do/wp-content/uploads/2021/05/Logo-uniremhos2.png", colorPrincipal: "#c8102e", colorSecundario: "#FFDE00", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            uasd: { logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpX4MMZyqpdYo_eWJ_PFPb-zOrELL-9x2G7A&s", colorPrincipal: "#010379", colorSecundario: "#000000", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            uapa: { logo: "https://scontent-mia3-3.xx.fbcdn.net/v/t39.30808-6/674362324_122206502144431982_6959855271145018058_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=13d280&_nc_ohc=MmNbqUL5yvcQ7kNvwFa1_PF&_nc_oc=AdpULb1M_rDJzPkZMkFBPWrzJ9YjXcbtYP_jtg99Qo2Hc-xPBndXHIakOT4i21Yrh9M&_nc_zt=23&_nc_ht=scontent-mia3-3.xx&_nc_gid=173AN59efHvi_lzHoLnJ6g&_nc_ss=7a3a8&oh=00_Af1jd1SzvaLJkVDnemIQ6Z6JWZ-ld8ddhgTc9mYqqDuSew&oe=69EB6288", colorPrincipal: "#003876", colorSecundario: "#FC8101", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            utesa: { logo: "https://www.utesa.edu/webutesa/IMAGES/LogoUtesaSC.gif", colorPrincipal: "#006838", colorSecundario: "#F5C611", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            pucmm: { logo: "https://www.pucmm.edu.do/recursos/PublishingImages/Paginas/logos/Logo%20PUCMM%20(Color).png", colorPrincipal: "#BEBAB9", colorSecundario: "#e31837", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            intec: { logo: "https://upload.wikimedia.org/wikipedia/commons/5/57/Instituto_Tecnol%C3%B3gico_de_Santo_Domingo_INTEC_LOGO.png", colorPrincipal: "#c8102e", colorSecundario: "#333333", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            unibe: { logo: "https://www.unibe.edu.do/wp-content/uploads/2023/02/logo-unibe-blue-nuevo.png", colorPrincipal: "#0072ce", colorSecundario: "#00A1E2", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            unphu: { logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEg4rsdnKQrQdj3g8bEJ0B7Qc5JjHeyJxXhQ&s", colorPrincipal: "#006747", colorSecundario: "#203E74", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            unapec: { logo: "https://unapec.edu.do/media/10856/simbolo-color.png", colorPrincipal: "#005AAB", colorSecundario: "#C79737", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            unicaribe: { logo: "https://unicaribe.edu.do/wp-content/uploads/elementor/thumbs/UNICARIBE1-6-e1739378068311-r1em02rgtrpt4xidth5gtpd50v4ot56wywytdodwru.png", colorPrincipal: "#148D45", colorSecundario: "#C01423", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            ucateci: { logo: "https://www.ucateci.edu.do/images/archivos/logo/Logo-UCATECI-2.png", colorPrincipal: "#275598", colorSecundario: "#CBC8C7", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            itla: { logo: "https://educapermanente.itla.edu.do/pluginfile.php/1/core_admin/logo/0x200/1773843777/ITLA-logo-fondo-blanco%20%281%29.png", colorPrincipal: "#003da5", colorSecundario: "#c8102e", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" },
+            itsc: { logo: "https://gravatar.com/avatar/28b9da305a3a5e75b9f4288a672fda8a?s=270&d=identicon", colorPrincipal: "#BF2025", colorSecundario: "#303D48", btnColor: "bg-[#214b6b]", btnHover: "hover:bg-[#16364f]" }
         };
 
-        // 2. MOTOR DE PLANTILLAS DINÁMICAS
-        // Devuelven el HTML estructural adaptado a la universidad
         const plantillas = {
             clasica: (uni, logoB64) => `
                 <svg width="816" height="1056" viewBox="0 0 816 1056" style="position: absolute; top: 0; left: 0; width: 816px; height: 1056px; z-index: 0; pointer-events: none; display: block;" xmlns="http://www.w3.org/2000/svg">
@@ -264,103 +327,87 @@
             `
         };
 
-        // 3. ESTADO INICIAL
         let camposData = [
-            { id: 'nombres', label: 'Nombres', value: 'Rocio Michelle' },
-            { id: 'apellidos', label: 'Apellidos', value: 'Contreras Báez' },
-            { id: 'matricula', label: 'Matrícula', value: 'DN-2026-06235' },
-            { id: 'tema', label: 'Tema', value: 'Las Reflexiones' },
-            { id: 'materia', label: 'Materia', value: 'Historia Dominicana' },
-            { id: 'facilitador', label: 'Facilitador', value: 'Licda. Amanda Ortiz' }
+            { id: 'nombres', label: 'Nombres', value: '', placeholder: 'Ej. Juan Alberto' },
+            { id: 'apellidos', label: 'Apellidos', value: '', placeholder: 'Ej. Pérez González' },
+            { id: 'matricula', label: 'Matrícula', value: '', placeholder: 'Ej. 100456789' },
+            { id: 'tema', label: 'Tema', value: '', placeholder: 'Ej. El Calentamiento Global' },
+            { id: 'materia', label: 'Materia', value: '', placeholder: 'Ej. Ciencias Naturales' },
+            { id: 'facilitador', label: 'Facilitador', value: '', placeholder: 'Ej. Lic. María Fernández' }
         ];
 
         let currentLogoBase64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-        // 4. FUNCIONES PRINCIPALES
+        // ==========================================
+        // 2. FUNCIONES DEL FORMULARIO Y RENDER
+        // ==========================================
         function actualizarDiseno() {
             const uniKey = document.getElementById('select-uni').value;
             const plantillaKey = document.getElementById('select-plantilla').value;
             const uni = universidades[uniKey];
 
-            // Pinta la plantilla base con el logo actual en caché
-            const hoja = document.getElementById('hoja-render');
-            hoja.innerHTML = plantillas[plantillaKey](uni, currentLogoBase64);
-
-            // Carga el nuevo logo si la universidad cambió
+            document.getElementById('hoja-render').innerHTML = plantillas[plantillaKey](uni, currentLogoBase64);
             cargarLogoSeguro(uni.logo, uniKey);
-
-            // Adaptar los botones
-            const btnPdf = document.getElementById('btn-descargar');
-            btnPdf.className = `w-full flex items-center justify-center gap-2 ${uni.btnColor} ${uni.btnHover} text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md`;
             
-            // Inyectar los textos en la nueva estructura
             sincronizarVistaPrevia();
         }
 
         function sincronizarVistaPrevia() {
-            // Actualizar Título
             const titulo = document.getElementById('input-titulo').value.trim();
             const renderTitulo = document.getElementById('render-titulo');
             if (renderTitulo) {
-                renderTitulo.textContent = titulo;
-                renderTitulo.style.display = titulo === '' ? 'none' : 'block';
+                renderTitulo.innerHTML = titulo === '' ? '&nbsp;' : titulo;
+                renderTitulo.style.display = 'block';
             }
 
-            // Actualizar campos desde la UI
             const nuevosCampos = [];
             document.querySelectorAll('.campo-block').forEach(block => {
                 nuevosCampos.push({
                     id: block.dataset.id,
                     label: block.querySelector('.campo-label').value.trim(),
-                    value: block.querySelector('.campo-value').value
+                    value: block.querySelector('.campo-value').value,
+                    placeholder: block.querySelector('.campo-value').placeholder
                 });
             });
             
-            // Si nuevosCampos tiene datos (alguien tipeó), actualizamos camposData. 
-            // Si está vacío, fue llamado por otra función de inicio.
             if(nuevosCampos.length > 0) camposData = nuevosCampos;
 
-            // Renderizar en la plantilla
             const renderContainer = document.getElementById('render-campos-container');
             if (!renderContainer) return;
-            
             renderContainer.innerHTML = '';
 
             camposData.forEach(campo => {
-                if (campo.value.trim() === '') return; 
-
                 const labelText = campo.label.endsWith(':') ? campo.label : campo.label + ':';
+                const valorRender = campo.value === '' ? '&nbsp;' : campo.value; 
+
                 const div = document.createElement('div');
                 div.innerHTML = `
                     <p style="font-weight: bold; margin: 0; color: var(--campo-label-color, black);">${labelText}</p>
-                    <p style="margin: 4px 0 0 0; color: var(--campo-value-color, black);">${campo.value}</p>
+                    <p style="margin: 4px 0 0 0; min-height: 1.2em; color: var(--campo-value-color, black);">${valorRender}</p>
                 `;
                 renderContainer.appendChild(div);
             });
         }
 
-        // 5. DRAG AND DROP Y FORMULARIO
         function renderFormulario() {
             const container = document.getElementById('campos-container');
             container.innerHTML = ''; 
-
             camposData.forEach(campo => {
                 const block = document.createElement('div');
                 block.className = 'campo-block flex items-start gap-2 p-3 bg-white border border-gray-200 rounded-lg shadow-sm';
                 block.dataset.id = campo.id;
-                
                 block.innerHTML = `
-                    <div class="drag-handle mt-5 cursor-grab active:cursor-grabbing text-gray-400 hover:text-blue-600 p-1 bg-gray-50 rounded" title="Mover">
+                    <div class="drag-handle mt-5 cursor-grab active:cursor-grabbing text-gray-400 hover:text-[#5da4bc] p-1 bg-gray-50 rounded" title="Mover">
                         <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
                     </div>
                     <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Subtítulo</label>
-                            <input type="text" class="campo-label w-full px-2 py-1.5 text-sm font-bold text-[#002060] bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" value="${campo.label}" placeholder="Ej. Tema">
+                            <input type="text" class="campo-label w-full px-2 py-1.5 text-sm font-bold text-[#214b6b] bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-2 focus:ring-[#5da4bc] outline-none transition-all" value="${campo.label}" placeholder="Ej. Tema">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Contenido</label>
-                            <input type="text" class="campo-value w-full px-2 py-1.5 text-sm text-gray-800 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none transition-all" value="${campo.value}" placeholder="Texto a mostrar">
+                            <input type="text" class="campo-value w-full px-2 py-1.5 text-sm text-gray-800 border border-gray-300 rounded focus:ring-2 focus:ring-[#5da4bc] outline-none transition-all" value="${campo.value}" placeholder="${campo.placeholder || 'Ej. Escribe aquí...'}">
                         </div>
                     </div>
                     <div class="mt-5">
@@ -380,7 +427,7 @@
 
         function agregarCampo() {
             sincronizarVistaPrevia();
-            camposData.push({ id: 'campo-' + Date.now(), label: 'Nuevo Campo', value: '' });
+            camposData.push({ id: 'campo-' + Date.now(), label: 'Nuevo Campo', value: '', placeholder: 'Ej. Escribe aquí...' });
             renderFormulario();
             sincronizarVistaPrevia();
         }
@@ -394,15 +441,10 @@
 
         function inicializarDragAndDrop() {
             new Sortable(document.getElementById('campos-container'), {
-                handle: '.drag-handle',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                onEnd: sincronizarVistaPrevia
+                handle: '.drag-handle', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag', onEnd: sincronizarVistaPrevia
             });
         }
 
-        // 6. UTILIDADES Y CARGAS
         function escalarVistaPrevia() {
             const wrapper = document.getElementById('preview-wrapper');
             const scaleWrapper = document.getElementById('scale-wrapper');
@@ -414,88 +456,300 @@
 
         function cargarLogoSeguro(urlLogo, uniKey) {
             const logoImg = document.getElementById('logo-inst');
-            
-            // Si ya lo tenemos en caché, usarlo instantáneamente
             if(universidades[uniKey].base64) {
                 currentLogoBase64 = universidades[uniKey].base64;
                 if(logoImg) logoImg.src = currentLogoBase64;
                 return;
             }
-
             const cleanUrl = urlLogo.replace(/^https?:\/\//, '');
             const proxyUrl = 'https://wsrv.nl/?url=' + encodeURIComponent(cleanUrl) + '&output=png';
-            
             const tempImg = new Image();
             tempImg.crossOrigin = 'anonymous'; 
-            
             tempImg.onload = function() {
                 try {
                     const canvas = document.createElement('canvas');
-                    canvas.width = tempImg.naturalWidth || 800;
-                    canvas.height = tempImg.naturalHeight || 800;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(tempImg, 0, 0);
-                    
+                    canvas.width = tempImg.naturalWidth || 800; canvas.height = tempImg.naturalHeight || 800;
+                    canvas.getContext('2d').drawImage(tempImg, 0, 0);
                     const b64 = canvas.toDataURL('image/png');
-                    universidades[uniKey].base64 = b64;
-                    currentLogoBase64 = b64;
-                    
-                    if(document.getElementById('logo-inst')) {
-                        document.getElementById('logo-inst').src = currentLogoBase64;
-                    }
-                } catch (e) {
-                    if(document.getElementById('logo-inst')) document.getElementById('logo-inst').src = proxyUrl; 
-                }
+                    universidades[uniKey].base64 = b64; currentLogoBase64 = b64;
+                    if(document.getElementById('logo-inst')) document.getElementById('logo-inst').src = currentLogoBase64;
+                } catch (e) { if(document.getElementById('logo-inst')) document.getElementById('logo-inst').src = proxyUrl; }
             };
-            
-            tempImg.onerror = function() {
-                if(document.getElementById('logo-inst')) document.getElementById('logo-inst').src = urlLogo;
-            };
-            
+            tempImg.onerror = function() { if(document.getElementById('logo-inst')) document.getElementById('logo-inst').src = urlLogo; };
             tempImg.src = proxyUrl;
         }
 
+        // ==========================================
+        // 3. IA CHATBOT (OPENAI API)
+        // ==========================================
+        
+        // Llave API OpenAI
+        const apiKey = "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"; 
+
+        const btnToggleChat = document.getElementById('btn-toggle-chat');
+        const chatWindow = document.getElementById('chat-window');
+        const btnCloseChat = document.getElementById('btn-close-chat');
+        const chatInput = document.getElementById('chat-input');
+        const btnSendChat = document.getElementById('btn-send-chat');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatTyping = document.getElementById('chat-typing');
+        
+        // Multimedia
+        const btnAttach = document.getElementById('btn-attach');
+        const fileInput = document.getElementById('chat-file-input');
+        const imagePreviewContainer = document.getElementById('chat-image-preview-container');
+        const imagePreview = document.getElementById('chat-image-preview');
+        const btnRemoveImage = document.getElementById('btn-remove-image');
+        const btnMic = document.getElementById('btn-mic');
+        const micStatus = document.getElementById('mic-status');
+        const micIcon = document.getElementById('mic-icon');
+
+        let chatImageBase64 = null;
+        let chatImageMimeType = null;
+        let isRecording = false;
+
+        // Toggle UI
+        btnToggleChat.addEventListener('click', () => {
+            chatWindow.style.display = 'flex';
+            setTimeout(() => {
+                chatWindow.classList.remove('scale-0', 'opacity-0');
+                chatWindow.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            btnToggleChat.classList.add('hidden');
+        });
+
+        btnCloseChat.addEventListener('click', () => {
+            chatWindow.classList.remove('scale-100', 'opacity-100');
+            chatWindow.classList.add('scale-0', 'opacity-0');
+            setTimeout(() => { chatWindow.style.display = 'none'; btnToggleChat.classList.remove('hidden'); }, 300);
+        });
+
+        // Imágenes
+        btnAttach.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const result = event.target.result;
+                chatImageBase64 = result.split(',')[1];
+                chatImageMimeType = file.type;
+                imagePreview.src = result;
+                imagePreviewContainer.classList.remove('hidden');
+                chatInput.focus();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        btnRemoveImage.addEventListener('click', () => {
+            chatImageBase64 = null;
+            chatImageMimeType = null;
+            fileInput.value = '';
+            imagePreviewContainer.classList.add('hidden');
+        });
+
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Transcripción de Voz
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'es-DO'; 
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                micStatus.classList.remove('hidden');
+                micIcon.classList.add('text-red-500');
+            };
+
+            recognition.onresult = function(event) {
+                const transcripcion = event.results[0][0].transcript;
+                chatInput.value += (chatInput.value ? ' ' : '') + transcripcion;
+                chatInput.dispatchEvent(new Event('input')); 
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                micStatus.classList.add('hidden');
+                micIcon.classList.remove('text-red-500');
+            };
+
+            btnMic.addEventListener('click', () => {
+                if(isRecording) { recognition.stop(); } 
+                else { recognition.start(); }
+            });
+        } else {
+            btnMic.style.display = 'none'; 
+        }
+
+        // Enviar a la IA
+        function addMessageToUI(text, isUser = false) {
+            const div = document.createElement('div');
+            div.className = `px-4 py-2 text-sm shadow-sm max-w-[85%] border border-gray-100 ${isUser ? 'chat-mensaje-usuario' : 'chat-mensaje-bot'}`;
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function enviarMensajeAI() {
+            const text = chatInput.value.trim();
+            if (!text && !chatImageBase64) return;
+
+            if(text) addMessageToUI(text, true);
+            if(chatImageBase64) addMessageToUI("📷 [Imagen adjunta]", true);
+            
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            chatTyping.classList.remove('hidden');
+            btnSendChat.disabled = true;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const base64ToSend = chatImageBase64;
+            const mimeToSend = chatImageMimeType;
+            btnRemoveImage.click();
+
+            sincronizarVistaPrevia(); 
+            const estadoActual = {
+                universidad: document.getElementById('select-uni').value,
+                plantilla: document.getElementById('select-plantilla').value,
+                titulo: document.getElementById('input-titulo').value,
+                campos: camposData
+            };
+
+            const systemPrompt = `Eres "El Asistente Digital", una IA integrada en un Creador de Portadas Universitarias.
+Tu objetivo es modificar la configuración y los datos de la portada según las instrucciones del usuario o analizando imágenes subidas.
+Usa un tono muy breve, amigable y directo en español.
+
+REGLAS ESTRICTAS:
+1. Devuelve SOLAMENTE un JSON válido siguiendo la estructura requerida.
+2. Formato esperado:
+{
+  "bot_reply": "Mensaje para el usuario",
+  "universidad": "id_universidad",
+  "plantilla": "id_plantilla",
+  "titulo": "Título de la portada",
+  "campos": [
+    { "id": "campo-123", "label": "Subtítulo", "value": "Contenido", "placeholder": "Ej..." }
+  ]
+}
+3. Universidades permitidas: uniremhos, uasd, uapa, utesa, pucmm, intec, unibe, unphu, unapec, unicaribe, ucateci, itla, itsc.
+4. Plantillas permitidas: clasica, lateral, superior, geometrica, minimalista.
+5. Puedes agregar, borrar o editar los campos según lo pida el usuario.`;
+
+            const messages = [
+                { role: "system", content: systemPrompt }
+            ];
+
+            const userContent = [];
+            userContent.push({
+                type: "text",
+                text: `ESTADO ACTUAL DE LA INTERFAZ:\n${JSON.stringify(estadoActual, null, 2)}\n\nPETICIÓN DEL USUARIO: ${text || "Extrae los datos de esta imagen y colócalos en los campos correspondientes."}`
+            });
+
+            if (base64ToSend) {
+                userContent.push({
+                    type: "image_url",
+                    image_url: {
+                        url: `data:${mimeToSend};base64,${base64ToSend}`
+                    }
+                });
+            }
+
+            messages.push({ role: "user", content: userContent });
+
+            const payload = {
+                model: "gpt-4o-mini",
+                messages: messages,
+                response_format: { type: "json_object" }
+            };
+
+            try {
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                const jsonStr = data.choices[0].message.content;
+                const result = JSON.parse(jsonStr);
+
+                document.getElementById('select-uni').value = result.universidad || 'uniremhos';
+                document.getElementById('select-plantilla').value = result.plantilla || 'clasica';
+                document.getElementById('input-titulo').value = result.titulo || '';
+                
+                if (result.campos && Array.isArray(result.campos)) {
+                    camposData = result.campos;
+                }
+
+                renderFormulario();
+                actualizarDiseno(); 
+
+                addMessageToUI(result.bot_reply);
+
+            } catch (error) {
+                console.error(error);
+                addMessageToUI("Hubo un error de conexión con la IA. Verifica tu API Key o la conexión a internet.");
+            } finally {
+                chatTyping.classList.add('hidden');
+                btnSendChat.disabled = false;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        btnSendChat.addEventListener('click', enviarMensajeAI);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensajeAI();
+            }
+        });
+
+
+        // ==========================================
+        // 4. INICIALIZACIÓN
+        // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             renderFormulario();       
             inicializarDragAndDrop(); 
-            actualizarDiseno();     // Carga la plantilla inicial   
+            actualizarDiseno();        
             escalarVistaPrevia();
             setTimeout(escalarVistaPrevia, 200); 
-            
-            // Re-sincronizar cuando el usuario modifique el título manualmente
             document.getElementById('input-titulo').addEventListener('input', sincronizarVistaPrevia);
         });
 
-        // 7. DESCARGAS
+        // ==========================================
+        // 5. FUNCIONES DE DESCARGA
+        // ==========================================
         function crearEntornoAislado() {
             const hoja = document.getElementById('hoja-render');
             const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed'; 
-            iframe.style.top = '0';
-            iframe.style.left = '0';
-            iframe.style.width = '816px';    
-            iframe.style.height = '1056px';
-            iframe.style.zIndex = '-9999';   
-            iframe.style.opacity = '0';
-            iframe.style.border = 'none';
-            iframe.style.pointerEvents = 'none';
+            iframe.style.position = 'fixed'; iframe.style.top = '0'; iframe.style.left = '0';
+            iframe.style.width = '816px'; iframe.style.height = '1056px';
+            iframe.style.zIndex = '-9999'; iframe.style.opacity = '0';
+            iframe.style.border = 'none'; iframe.style.pointerEvents = 'none';
             document.body.appendChild(iframe);
 
             const doc = iframe.contentWindow.document;
             doc.open();
             doc.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
-                        * { box-sizing: border-box; }
-                    </style>
-                </head>
-                <body>
-                    ${hoja.outerHTML}
-                </body>
-                </html>
+                <!DOCTYPE html><html><head><style>
+                body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
+                * { box-sizing: border-box; }
+                </style></head><body>${hoja.outerHTML}</body></html>
             `);
             doc.close();
             return iframe;
@@ -504,38 +758,21 @@
         function descargarPDF() {
             const btn = document.getElementById('btn-descargar');
             const btnOriginalText = btn.innerHTML;
-            
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generando PDF...';
-            lucide.createIcons();
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generando...';
+            lucide.createIcons(); btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
 
             const iframe = crearEntornoAislado();
             const nombreUni = document.getElementById('select-uni').options[document.getElementById('select-uni').selectedIndex].text;
 
             setTimeout(() => {
                 const elementoAImprimir = iframe.contentWindow.document.getElementById('hoja-render');
-                const opciones = {
-                    margin:       0,
-                    filename:     `Presentacion-${nombreUni}.pdf`,
-                    image:        { type: 'jpeg', quality: 1 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: 816, windowHeight: 1056, x: 0, y: 0, scrollX: 0, scrollY: 0 },
-                    jsPDF:        { unit: 'px', format: [816, 1056], orientation: 'portrait' }
-                };
-
-                html2pdf().set(opciones).from(elementoAImprimir).save().then(() => {
-                    document.body.removeChild(iframe); 
-                    btn.innerHTML = btnOriginalText;
-                    lucide.createIcons();
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
-                }).catch(err => {
-                    alert("Hubo un error al generar el PDF.");
-                    document.body.removeChild(iframe);
-                    btn.innerHTML = btnOriginalText;
-                    lucide.createIcons();
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                html2pdf().set({
+                    margin: 0, filename: `Portada-${nombreUni}.pdf`, image: { type: 'jpeg', quality: 1 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 816, windowHeight: 1056, x:0, y:0, scrollX:0, scrollY:0 },
+                    jsPDF: { unit: 'px', format: [816, 1056], orientation: 'portrait' }
+                }).from(elementoAImprimir).save().then(() => {
+                    document.body.removeChild(iframe); btn.innerHTML = btnOriginalText;
+                    lucide.createIcons(); btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
                 });
             }, 800);
         }
@@ -543,39 +780,22 @@
         function descargarJPG() {
             const btn = document.getElementById('btn-descargar-jpg');
             const btnOriginalText = btn.innerHTML;
-            
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generando JPG...';
-            lucide.createIcons();
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generando...';
+            lucide.createIcons(); btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
 
             const iframe = crearEntornoAislado();
             const nombreUni = document.getElementById('select-uni').options[document.getElementById('select-uni').selectedIndex].text;
 
             setTimeout(() => {
                 const elementoAImprimir = iframe.contentWindow.document.getElementById('hoja-render');
-                
                 html2canvas(elementoAImprimir, { 
-                    scale: 2, useCORS: true, logging: false, windowWidth: 816, windowHeight: 1056, x: 0, y: 0, scrollX: 0, scrollY: 0
+                    scale: 2, useCORS: true, logging: false, windowWidth: 816, windowHeight: 1056, x:0, y:0, scrollX:0, scrollY:0
                 }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
                     const link = document.createElement('a');
-                    link.download = `Presentacion-${nombreUni}.jpg`;
-                    link.href = imgData;
+                    link.download = `Portada-${nombreUni}.jpg`; link.href = canvas.toDataURL('image/jpeg', 1.0);
                     link.click();
-
-                    document.body.removeChild(iframe); 
-                    btn.innerHTML = btnOriginalText;
-                    lucide.createIcons();
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
-                }).catch(err => {
-                    alert("Hubo un error al generar el JPG.");
-                    document.body.removeChild(iframe);
-                    btn.innerHTML = btnOriginalText;
-                    lucide.createIcons();
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                    document.body.removeChild(iframe); btn.innerHTML = btnOriginalText;
+                    lucide.createIcons(); btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
                 });
             }, 800);
         }
