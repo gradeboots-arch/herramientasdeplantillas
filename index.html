@@ -606,12 +606,37 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
-                const result = event.target.result;
-                chatImageBase64 = result.split(',')[1];
-                chatImageMimeType = file.type;
-                imagePreview.src = result;
-                imagePreviewContainer.classList.remove('hidden');
-                chatInput.focus();
+                const img = new Image();
+                img.onload = () => {
+                    // Reducir tamaño de la imagen para evitar el límite de peso en la API
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_SIZE = 800; // Resolución máxima
+                    
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Comprimir a JPEG ligero (80% calidad)
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    chatImageBase64 = compressedDataUrl.split(',')[1];
+                    chatImageMimeType = 'image/jpeg';
+                    imagePreview.src = compressedDataUrl;
+                    imagePreviewContainer.classList.remove('hidden');
+                    chatInput.focus();
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
@@ -786,7 +811,7 @@ REGLAS ESTRICTAS:
 
             } catch (error) {
                 console.error(error);
-                addMessageToUI("Hubo un error de conexión con la IA. Verifica tu API Key o la conexión a internet.");
+                addMessageToUI("Hubo un error de conexión con la IA. Es posible que la imagen sea muy pesada o haya un fallo en la red.");
             } finally {
                 chatTyping.classList.add('hidden');
                 btnSendChat.disabled = false;
