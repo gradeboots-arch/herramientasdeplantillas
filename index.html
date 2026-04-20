@@ -327,6 +327,7 @@
             `
         };
 
+        // Estado inicial de campos y variables globales
         let camposData = [
             { id: 'nombres', label: 'Nombres', value: '', placeholder: 'Ej. Juan Alberto' },
             { id: 'apellidos', label: 'Apellidos', value: '', placeholder: 'Ej. Pérez González' },
@@ -337,9 +338,79 @@
         ];
 
         let currentLogoBase64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        let chatHistory = []; // Memoria del chatbot
 
         // ==========================================
-        // 2. FUNCIONES DEL FORMULARIO Y RENDER
+        // 2. PERSISTENCIA DE ESTADO (Local Storage)
+        // ==========================================
+        function guardarEstado() {
+            try {
+                const estado = {
+                    universidad: document.getElementById('select-uni').value,
+                    plantilla: document.getElementById('select-plantilla').value,
+                    titulo: document.getElementById('input-titulo').value,
+                    campos: camposData,
+                    chatHistory: chatHistory
+                };
+                localStorage.setItem('asistenteDigitalEstado', JSON.stringify(estado));
+            } catch (e) {
+                console.warn("No se pudo guardar el estado en caché. Safari puede bloquearlo en navegación privada.", e);
+            }
+        }
+
+        function cargarEstado() {
+            const guardado = localStorage.getItem('asistenteDigitalEstado');
+            if (guardado) {
+                try {
+                    const estado = JSON.parse(guardado);
+                    if (estado.universidad) document.getElementById('select-uni').value = estado.universidad;
+                    if (estado.plantilla) document.getElementById('select-plantilla').value = estado.plantilla;
+                    if (estado.titulo !== undefined) document.getElementById('input-titulo').value = estado.titulo;
+                    if (estado.campos && Array.isArray(estado.campos) && estado.campos.length > 0) {
+                        camposData = estado.campos;
+                    }
+                    if (estado.chatHistory && Array.isArray(estado.chatHistory)) {
+                        chatHistory = estado.chatHistory;
+                        restaurarChatUI();
+                    }
+                } catch (e) {
+                    console.error("Error al recuperar los datos guardados.", e);
+                }
+            }
+        }
+
+        function restaurarChatUI() {
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatHistory.length > 0) {
+                chatMessages.innerHTML = ''; 
+                
+                // Reinyectamos el mensaje de bienvenida
+                const msjBienvenida = document.createElement('div');
+                msjBienvenida.className = 'chat-mensaje-bot px-4 py-2 text-sm shadow-sm max-w-[85%] border border-gray-100';
+                msjBienvenida.textContent = "¡Hola! Soy tu Asistente Digital. Puedo organizar tus campos, cambiar el diseño o leer fotos de tu cuaderno para llenar los datos. ¿En qué te ayudo hoy?";
+                chatMessages.appendChild(msjBienvenida);
+
+                // Reinyectamos el historial
+                chatHistory.forEach(msg => {
+                    if (msg.role === 'user') {
+                        addMessageToUI(msg.content, true, false);
+                    } else if (msg.role === 'assistant') {
+                        try {
+                            const parsed = JSON.parse(msg.content);
+                            if (parsed.bot_reply) {
+                                addMessageToUI(parsed.bot_reply, false, false);
+                            }
+                        } catch(e) {
+                            addMessageToUI(msg.content, false, false);
+                        }
+                    }
+                });
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        // ==========================================
+        // 3. FUNCIONES DEL FORMULARIO Y RENDER
         // ==========================================
         function actualizarDiseno() {
             const uniKey = document.getElementById('select-uni').value;
@@ -387,6 +458,9 @@
                 `;
                 renderContainer.appendChild(div);
             });
+
+            // Guardamos el estado cada vez que se sincroniza la vista (cambio de campos, título o diseño)
+            guardarEstado();
         }
 
         function renderFormulario() {
@@ -480,7 +554,7 @@
         }
 
         // ==========================================
-        // 3. IA CHATBOT (OPENAI API)
+        // 4. IA CHATBOT (OPENAI API)
         // ==========================================
         
         // Llave API OpenAI
@@ -591,12 +665,12 @@
         }
 
         // Enviar a la IA
-        function addMessageToUI(text, isUser = false) {
+        function addMessageToUI(text, isUser = false, autoScroll = true) {
             const div = document.createElement('div');
             div.className = `px-4 py-2 text-sm shadow-sm max-w-[85%] border border-gray-100 ${isUser ? 'chat-mensaje-usuario' : 'chat-mensaje-bot'}`;
             div.textContent = text;
             chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            if(autoScroll) chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         async function enviarMensajeAI() {
@@ -645,9 +719,12 @@ REGLAS ESTRICTAS:
 5. Puedes agregar, borrar o editar los campos según lo pida el usuario.`;
 
             const messages = [
-                { role: "system", content: systemPrompt }
+                { role: "system", content: systemPrompt },
+                // Añadir el historial previo (Limitado para no exceder los tokens)
+                ...chatHistory.map(msg => ({ role: msg.role, content: msg.content }))
             ];
 
+            // Añadir el mensaje actual del usuario
             const userContent = [];
             userContent.push({
                 type: "text",
@@ -687,6 +764,13 @@ REGLAS ESTRICTAS:
                 const jsonStr = data.choices[0].message.content;
                 const result = JSON.parse(jsonStr);
 
+                // Guardar interacciones en el historial (solo el texto para ahorrar memoria)
+                chatHistory.push({ role: "user", content: text || "📷 [Imagen adjunta]" });
+                chatHistory.push({ role: "assistant", content: jsonStr });
+                
+                // Limitar a las últimas 40 entradas (20 interacciones)
+                if (chatHistory.length > 40) chatHistory = chatHistory.slice(-40);
+
                 document.getElementById('select-uni').value = result.universidad || 'uniremhos';
                 document.getElementById('select-plantilla').value = result.plantilla || 'clasica';
                 document.getElementById('input-titulo').value = result.titulo || '';
@@ -718,21 +802,23 @@ REGLAS ESTRICTAS:
             }
         });
 
-
         // ==========================================
-        // 4. INICIALIZACIÓN
+        // 5. INICIALIZACIÓN
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
-            renderFormulario();       
-            inicializarDragAndDrop(); 
-            actualizarDiseno();        
+            cargarEstado();           // 1. Cargar caché (si existe)
+            renderFormulario();       // 2. Dibujar campos
+            inicializarDragAndDrop(); // 3. Habilitar arrastre
+            actualizarDiseno();       // 4. Dibujar SVG y logos
             escalarVistaPrevia();
             setTimeout(escalarVistaPrevia, 200); 
-            document.getElementById('input-titulo').addEventListener('input', sincronizarVistaPrevia);
+            document.getElementById('input-titulo').addEventListener('input', () => {
+                sincronizarVistaPrevia();
+            });
         });
 
         // ==========================================
-        // 5. FUNCIONES DE DESCARGA
+        // 6. FUNCIONES DE DESCARGA
         // ==========================================
         function crearEntornoAislado() {
             const hoja = document.getElementById('hoja-render');
